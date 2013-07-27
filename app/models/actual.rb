@@ -19,8 +19,8 @@ class Actual < ActiveRecord::Base
   }
 
   before_validation :set_direct_miles
-  before_validation :set_origin
-  before_validation :set_destination
+  # before_validation :set_origin
+  # before_validation :set_destination
 
   def set_direct_miles
     self.direct_miles = Geocoder::Calculations.distance_between(
@@ -28,17 +28,25 @@ class Actual < ActiveRecord::Base
     ).to_i
   end
 
-  def set_origin
-    self.origin = point(origin_longitude, origin_latitude)
-  end
+  after_commit :update_spacial_columns
 
-  def set_destination
-    self.destination = point(destination_longitude, destination_latitude)
-  end
+  def update_spacial_columns
+    ActiveRecord::Base.connection.execute(
+      "update \"actuals\" set \"origin\" = \'point(#{origin_longitude} #{origin_latitude})\', \"destination\" = \'point(#{destination_longitude} #{destination_latitude})\' where \"actuals\".\"id\" = #{id}"
+    )
+  end  
 
-  def point(longitude, latitude)
-    "POINT(#{longitude} #{latitude})"
-  end
+  # def set_origin
+  #   self.origin = point(origin_longitude, origin_latitude)
+  # end
+
+  # def set_destination
+  #   self.destination = point(destination_longitude, destination_latitude)
+  # end
+
+  # def point(longitude, latitude)
+  #   "POINT(#{longitude} #{latitude})"
+  # end
 
   def estimated_distance
     @estimated_distance ||= begin
