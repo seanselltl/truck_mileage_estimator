@@ -1,0 +1,1 @@
+Rake::Task['seed:actuals'].invoke

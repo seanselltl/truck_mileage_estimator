@@ -1,0 +1,15 @@
+development:
+  adapter: postgis
+  host: localhost
+  postgis_extension: true
+  encoding: unicode
+  database: truck_mileage_estimator_development
+  pool: 5
+
+test:
+  adapter: postgis
+  host: localhost
+  postgis_extension: true
+  encoding: unicode
+  database: truck_mileage_estimator_test
+  pool: 5
