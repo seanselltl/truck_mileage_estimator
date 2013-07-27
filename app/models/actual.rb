@@ -37,7 +37,7 @@ class Actual < ActiveRecord::Base
   end
 
   def point(longitude, latitude)
-    RGeo::Geographic.spherical_factory(srid: 4326).point(longitude, latitude)
+    "POINT(#{longitude} #{latitude})"
   end
 
   def estimated_distance
