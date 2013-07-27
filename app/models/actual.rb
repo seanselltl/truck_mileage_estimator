@@ -11,16 +11,14 @@ class Actual < ActiveRecord::Base
   scope :like, -> (origin_coordinates, destination_coordinates, radius=50000) {
     olat, olon = [0,1].collect { |n| origin_coordinates[n] }
     dlat, dlon = [0,1].collect { |n| destination_coordinates[n] }
-    where("ST_DWithin(origin, 'point(#{olon} #{olat})',#{radius})").
-    where("ST_DWithin(destination, 'point(#{dlon} #{dlat})',#{radius})").
+    where("ST_DWithin(origin, ST_GeomFromText('point(#{olon} #{olat})'),#{radius})").
+    where("ST_DWithin(destination, ST_GeomFromText('point(#{dlon} #{dlat})'),#{radius})").
     select(
-      "actuals.*, (ST_Distance(origin,'point(#{olon} #{olat})') + ST_Distance(destination,'point(#{dlon} #{dlat})')) as distance"
+      "actuals.*, (ST_Distance(origin,ST_GeomFromText('point(#{olon} #{olat})')) + ST_Distance(destination,ST_GeomFromText('point(#{dlon} #{dlat})'))) as distance"
     ).order("distance asc")
   }
 
   before_validation :set_direct_miles
-  # before_validation :set_origin
-  # before_validation :set_destination
 
   def set_direct_miles
     self.direct_miles = Geocoder::Calculations.distance_between(
@@ -36,6 +34,12 @@ class Actual < ActiveRecord::Base
     )
   end  
 
+  # WTF!? receiving an error on heroku
+  # PG::InvalidTextRepresentation: ERROR:  invalid input syntax for type point
+
+  # before_validation :set_origin
+  # before_validation :set_destination
+
   # def set_origin
   #   self.origin = point(origin_longitude, origin_latitude)
   # end
@@ -48,9 +52,9 @@ class Actual < ActiveRecord::Base
   #   "POINT(#{longitude} #{latitude})"
   # end
 
-  def estimated_distance
-    @estimated_distance ||= begin
-      EstimatedDistance.new(
+  def estimate
+    @estimate ||= begin
+      Estimate.new(
         attributes.slice("origin_latitude", "origin_longitude", "destination_latitude", "destination_longitude")
       )
     end
