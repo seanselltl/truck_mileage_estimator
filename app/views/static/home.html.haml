@@ -1,0 +1,56 @@
+%h1 Truck Mileage Estimator
+
+%h2 About
+
+%p The truck mileage estimator quickly estimates the truck mileage between any two coordinates in the US. The estimate is based on over 1 million precise truck mileage measurements and is accurate enough for most types of anaylsis. Each request should return in 100ms to 200ms.
+
+%h3 Usage
+%p The format provided by the application is json.
+%h4 Request
+<code>POST</code> to <code>http://truck-mileage-estimator.herokuapp.com/estimates</code>
+%pre
+  = preserve do
+    :escaped
+      {
+        "estimate" : {
+          "origin_latitude":"41.8500", 
+          "origin_longitude":"-87.65",  
+          "destination_latitude":"42.6539",
+          "destination_longitude":"-73.9292"
+        }
+      }
+
+%h4 Successful Response
+%code Status 200 OK
+%pre
+  = preserve do
+    :escaped
+      {
+        "origin_latitude":"41.85",
+        "origin_longitude":"-87.65",
+        "destination_latitude":"42.6539",
+        "destination_longitude":"-73.9292",
+        "miles":815,
+        "errors":[]
+      }
+%h4 Unsuccessful Response
+%code Status 406 Not Acceptable
+%pre
+  = preserve do
+    :escaped
+      {
+        "origin_latitude":"41.85",
+        "origin_longitude":"-87.65",
+        "destination_latitude":"42.6539",
+        "destination_longitude":null,
+        "miles":null,
+        "errors":[
+          {"destination_longitude":"is not between -180 and 180"}
+        ]
+      }
+
+%h4 curl Example
+
+%code
+  curl http://truck-mileage-estimator.herokuapp.com -v -H "Content-type: application/json" -X POST -d '{"estimate":{"origin_latitude":"41.8500", "origin_longitude":"-87.65", "destination_latitude":"42.6539", "destination_longitude":"-73.9292"}}'
+

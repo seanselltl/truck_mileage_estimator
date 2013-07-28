@@ -1,5 +1,6 @@
 TruckMileageEstimator::Application.routes.draw do
 
-  resources :estimates
+  root to: "static#home"
+  resources :estimates, only: [:create]
 
 end
