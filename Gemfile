@@ -13,6 +13,8 @@ gem 'geocoder'
 gem 'static_map', github: "selltl/static_map"
 gem 'andand'
 gem 'activerecord-postgis-adapter'
+gem 'haml-rails'
+gem 'redcarpet'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
