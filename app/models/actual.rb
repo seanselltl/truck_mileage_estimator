@@ -26,31 +26,16 @@ class Actual < ActiveRecord::Base
     ).to_i
   end
 
-  after_commit :update_spacial_columns
+  # this is to deal with heroku's beta support of postgis
+  # things don't seem to work so smoothly with active record
+  # so i'm setting the spacial columns directly
 
+  after_commit :update_spacial_columns
   def update_spacial_columns
     ActiveRecord::Base.connection.execute(
       "update \"actuals\" set \"origin\" = \'point(#{origin_longitude} #{origin_latitude})\', \"destination\" = \'point(#{destination_longitude} #{destination_latitude})\' where \"actuals\".\"id\" = #{id}"
     )
   end  
-
-  # WTF!? receiving an error on heroku
-  # PG::InvalidTextRepresentation: ERROR:  invalid input syntax for type point
-
-  # before_validation :set_origin
-  # before_validation :set_destination
-
-  # def set_origin
-  #   self.origin = point(origin_longitude, origin_latitude)
-  # end
-
-  # def set_destination
-  #   self.destination = point(destination_longitude, destination_latitude)
-  # end
-
-  # def point(longitude, latitude)
-  #   "POINT(#{longitude} #{latitude})"
-  # end
 
   def estimate
     @estimate ||= begin
